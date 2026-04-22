@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import infiniteRoutes from './routes/infiniteRoutes';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/infinite', infiniteRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

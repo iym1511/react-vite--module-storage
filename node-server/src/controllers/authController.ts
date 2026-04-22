@@ -83,32 +83,56 @@ export const login = async (req: Request, res: Response) => {
 };
 
 /**
- * 토큰 갱신
+ * 토큰 갱신 (Access + Refresh Token Rotation)
  */
 export const refresh = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.refresh_token;
     if (!token) return res.status(401).json({ error: 'NO_REFRESH_TOKEN' });
+    
+    // 1. 기존 리프레시 토큰 검증
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as any;
     const storedTokenId = await redis.get(`refresh_token:${decoded.email}`);
 
+    // 2. Redis에 저장된 식별자와 대조 (보안 검사)
     if (!storedTokenId || storedTokenId !== decoded.tokenId) {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
     }
 
+    // 3. 새로운 식별자 생성 및 토큰 발급 (Rotation)
+    const newTokenId = uuidv4();
     const accessToken = jwt.sign(
       { email: decoded.email, name: decoded.name },
       process.env.JWT_SECRET!,
       { expiresIn: '1h' }
     );
 
+    const newRefreshToken = jwt.sign(
+      { email: decoded.email, name: decoded.name, tokenId: newTokenId },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: '7d' } // 💡 세션 연장을 위해 7일 설정
+    );
+
+    // 4. Redis 정보 업데이트 (기존 식별자 교체)
+    await redis.setex(`refresh_token:${decoded.email}`, 7 * 24 * 60 * 60, newTokenId);
+
+    // 5. 새로운 Refresh Token 쿠키 설정
+    res.cookie('refresh_token', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    });
+
     return res.status(200).json({ 
       message: '토큰 갱신 성공',
-      accessToken, // 💡 갱신된 액세스 토큰 반환
+      accessToken, 
       user: { email: decoded.email, name: decoded.name }
     });
   } catch (err) {
-    return res.status(401).json({ error: 'REFRESH_EXPIRED' });
+    console.error('Refresh error:', err);
+    return res.status(401).json({ error: 'REFRESH_EXPIRED', message: '세션이 만료되었습니다. 다시 로그인해주세요.' });
   }
 };
 
