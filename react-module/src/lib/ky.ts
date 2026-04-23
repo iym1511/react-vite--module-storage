@@ -1,55 +1,87 @@
-import ky from 'ky';
-import { useAuthStore } from '@/store/useAuthStore';
+import ky from 'ky'
+import { useAuthStore } from '@/store/useAuthStore'
 
 /**
  * 🔓 authApi: 로그인, 회원가입 등 '비인증' 혹은 '인증 관리' 자체를 위한 인스턴스
  */
 export const authApi = ky.create({
-  prefix: '/ptc/', 
-  credentials: 'include',
-  retry: 0,
-});
+    prefix: '/ptc/',
+    credentials: 'include',
+    retry: 0,
+})
 
 /**
  * 🔐 api: 일반적인 데이터 요청을 위한 '인증 기반' 인스턴스
  */
 export const api = ky.create({
-  prefix: '/ptc/',
-  credentials: 'include',
-  retry: 0,
-  hooks: {
-    afterResponse: [
-      async (request, options, response) => {
-        // 💡 401 에러(세션 만료) 발생 시 자동으로 리프레시 시도
-        if (response && response.status === 401 && !options?.context?.retryAfterRefresh) {
-          const { setAccessToken, logout } = useAuthStore.getState();
+    prefix: '/ptc/',
+    credentials: 'include',
+    retry: 0,
+    /**
+     * 🔥 cache: 'no-store'
+     *
+     * React (Vite) 환경에서는 fetch 요청이 브라우저에서 직접 나가기 때문에
+     * 기본적으로 HTTP 캐시(ETag, 304 Not Modified)가 자동으로 동작한다.
+     *
+     * 이 상태에서 인피니티 스크롤 / 페이지네이션을 구현하면
+     * 브라우저가 이전 응답을 재사용하면서 304 응답이 발생하고,
+     * 실제로는 새로운 데이터를 못 받아오는 문제가 생길 수 있다.
+     *
+     * 따라서 브라우저 캐시를 완전히 비활성화하고
+     * 항상 서버로부터 fresh 데이터를 받도록 강제한다.
+     *
+     * 👉 Next.js(Server Fetch)에서는 프레임워크가 캐시를 제어해주지만,
+     *    React(Client Fetch)에서는 반드시 수동으로 설정해야 한다.
+     *
+     * 👉 데이터 캐싱은 React Query(useQuery, useInfiniteQuery)로 따로 관리하는게 정석
+     */
+    cache: 'no-store',
+    hooks: {
+        beforeRequest: [
+            ({ request }) => {
+                // 💡 Zustand 스토어에서 최신 액세스 토큰을 가져와 헤더에 주입
+                const { accessToken } = useAuthStore.getState()
+                if (accessToken) {
+                    request.headers.set('Authorization', `Bearer ${accessToken}`)
+                }
+            },
+        ],
+        afterResponse: [
+            async ({ request, options, response }) => {
+                // 💡 401 에러(토큰 만료 등) 발생 시 자동으로 리프레시 시도
+                if (response && response.status === 401 && !options?.context?.retryAfterRefresh) {
+                    const { setAccessToken, logout } = useAuthStore.getState()
 
-          try {
-            // 1. 리프레시 API 호출 (쿠키 기반)
-            const refreshRes = await authApi.post('api/auth/refresh');
+                    try {
+                        console.log('[Auth] 토큰 만료 감지, 리프레시 시도 중...')
 
-            if (refreshRes.ok) {
-              const { accessToken } = await refreshRes.json();
-              
-              // 2. Zustand 메모리에 토큰 복구 (필요한 경우 대비)
-              setAccessToken(accessToken);
+                        // 1. 리프레시 API 호출 (HttpOnly 쿠키 기반 인증 가정)
+                        const refreshRes = await authApi.post('api/auth/refresh')
 
-              console.log('[Auth] 세션 복구 성공, 재요청 중...');
-              
-              // 3. 💡 헤더 주입 없이 원래 요청을 그대로 재시도 (쿠키 기반 인증 가정)
-              return api(request, {
-                ...options,
-                context: { ...options?.context, retryAfterRefresh: true }
-              });
-            }
-          } catch (error) {
-            console.error('[Auth] 자동 세션 복구 실패:', error);
-            logout();
-          }
-        }
+                        if (refreshRes.ok) {
+                            const { accessToken } = await refreshRes.json<{ accessToken: string }>()
 
-        return response;
-      },
-    ],
-  },
-});
+                            // 2. Zustand 메모리에 새 토큰 저장
+                            setAccessToken(accessToken)
+
+                            console.log('[Auth] 세션 복구 성공, 원래 요청 재시도...')
+
+                            // 3. 새 토큰을 헤더에 수동으로 업데이트하고 재요청
+                            request.headers.set('Authorization', `Bearer ${accessToken}`)
+
+                            return api(request, {
+                                ...options,
+                                context: { ...options?.context, retryAfterRefresh: true },
+                            })
+                        }
+                    } catch (error) {
+                        console.error('[Auth] 자동 세션 복구 실패:', error)
+                        logout()
+                    }
+                }
+
+                return response
+            },
+        ],
+    },
+})

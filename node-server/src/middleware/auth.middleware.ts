@@ -31,7 +31,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedUser;
     req.user = decoded;
-    next();
+    next(); // next()를 호출하면 "내 처리는 끝났으니 다음 미들웨어로 넘겨라" 라는 신호입니다.
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
