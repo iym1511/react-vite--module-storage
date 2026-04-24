@@ -1,26 +1,28 @@
 import { useNavigate } from 'react-router-dom'
 import { LogOut, User as UserIcon, Layers, LayoutDashboard, Sun, Moon } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
-import { useTheme } from '@/lib/theme-provider'
-import { authApi } from '@/lib/ky'
-import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import { useTheme } from '@/components/providers/theme-provider'
+import { cn } from '@/utils/utils'
+import { useMutation } from '@tanstack/react-query'
+import { authService } from '@/features/auth/api/auth'
 
 export default function MainPage() {
     const { user, logout } = useAuthStore()
     const { theme, setTheme } = useTheme()
     const navigate = useNavigate()
 
-    const handleLogout = async () => {
-        try {
-            // 🔓 로그아웃 전용 authApi 사용 (인터셉터 없음)
-            await authApi.post('api/auth/logout')
-        } catch (err) {
-            console.error('Logout failed:', err)
-        } finally {
+    const logoutMutation = useMutation({
+        mutationFn: authService.logout,
+        onSettled: () => {
+            // 성공하든 실패하든 클라이언트 로그아웃은 진행
             logout()
             navigate('/login', { replace: true })
         }
-    }
+    })
+
+    const handleLogout = () => {
+        logoutMutation.mutate()
+    };
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark')
@@ -120,13 +122,19 @@ export default function MainPage() {
                 {/* 로그아웃 버튼 */}
                 <button
                     onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
                     className={cn(
                         'flex w-full items-center justify-center gap-2 rounded-xl bg-destructive px-4 py-3 text-sm font-semibold text-destructive-foreground transition-all shadow-lg shadow-destructive/20',
-                        'hover:bg-destructive/90'
+                        'hover:bg-destructive/90',
+                        logoutMutation.isPending && 'opacity-50 cursor-not-allowed'
                     )}
                 >
-                    <LogOut className="h-4 w-4" />
-                    로그아웃
+                    {logoutMutation.isPending ? 'Logging out...' : (
+                        <>
+                            <LogOut className="h-4 w-4" />
+                            로그아웃
+                        </>
+                    )}
                 </button>
             </div>
         </div>

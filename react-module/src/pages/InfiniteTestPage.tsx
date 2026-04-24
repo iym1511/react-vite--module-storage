@@ -2,8 +2,8 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { ArrowLeft, RefreshCcw, Loader2 } from 'lucide-react'
-import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite'
-import { useInfiniteScroll } from '@/hooks/use-infinite-scroll'
+import { fetchInfiniteItemsFromApi } from '@/features/infinite-scroll/api/infinite'
+import { useInfiniteScroll } from '@/features/infinite-scroll/hooks/use-infinite-scroll'
 
 /**
  * 📝 InfiniteTestPage
@@ -22,6 +22,8 @@ export default function InfiniteTestPage() {
 
     const { ref: loadMoreRef } = useInfiniteScroll({
         fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     })
 
     return (
@@ -92,21 +94,14 @@ export default function InfiniteTestPage() {
                             ))}
                         </div>
 
-                        {/* 하단 관찰 영역 */}
-                        <div ref={hasNextPage ? loadMoreRef : undefined} className="mt-8 flex justify-center py-8">
+                        {/* 하단 관찰 영역: 복잡한 로직을 훅에 위임하여 단순화됨 */}
+                        <div ref={loadMoreRef} className="mt-8 flex justify-center py-8">
                             {isFetchingNextPage ? (
                                 <div className="flex flex-col items-center gap-3">
-                                    <div className="relative">
-                                        <div className="h-10 w-10 rounded-full border-2 border-muted"></div>
-                                        <div className="absolute top-0 h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                                    </div>
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                     <p className="text-sm font-medium text-primary">다음 페이지 로딩 중...</p>
                                 </div>
-                            ) : hasNextPage ? (
-                                <div className="h-1 bg-muted w-32 rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary/20 w-full animate-pulse"></div>
-                                </div>
-                            ) : (
+                            ) : !hasNextPage && (
                                 <div className="rounded-full bg-muted/50 px-6 py-2 border border-border">
                                     <p className="text-sm text-muted-foreground font-medium">
                                         ✨ 모든 데이터를 확인했습니다

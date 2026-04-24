@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authApi } from '@/lib/ky';
+import { useMutation } from '@tanstack/react-query';
+import { authService } from '@/features/auth/api/auth';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -9,48 +10,42 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const navigate = useNavigate();
+
+  const registerMutation = useMutation({
+    mutationFn: () => authService.signup({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    }),
+    onSuccess: () => {
+      alert('회원가입이 완료되었습니다. 로그인해 주세요.');
+      navigate('/login');
+    },
+  });
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    setValidationError(null);
 
-    // 💡 간단한 유효성 검사
     if (formData.password !== formData.confirmPassword) {
-      setError('비밀번호가 일치하지 않습니다.');
-      setIsLoading(false);
+      setValidationError('비밀번호가 일치하지 않습니다.');
       return;
     }
 
-    try {
-      // 🔓 회원가입 전용 authApi 사용 (인터셉터 없음)
-      await authApi.post('api/auth/signup', {
-        json: {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        },
-      });
-
-      // 회원가입 성공 시 로그인 페이지로 이동
-      alert('회원가입이 완료되었습니다. 로그인해 주세요.');
-      navigate('/login');
-    } catch (err: any) {
-      console.error('Registration failed:', err);
-      setError('회원가입에 실패했습니다. 이미 사용 중인 이메일일 수 있습니다.');
-    } finally {
-      setIsLoading(false);
-    }
+    registerMutation.mutate();
   };
+
+  const isLoading = registerMutation.isPending;
+  const isError = registerMutation.isError;
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
@@ -93,7 +88,8 @@ export default function RegisterPage() {
           style={{ padding: '8px' }}
         />
         
-        {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
+        {validationError && <p style={{ color: 'red', fontSize: '14px' }}>{validationError}</p>}
+        {isError && <p style={{ color: 'red', fontSize: '14px' }}>회원가입에 실패했습니다. 이미 사용 중인 이메일일 수 있습니다.</p>}
         
         <button 
           type="submit" 

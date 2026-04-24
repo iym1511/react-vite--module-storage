@@ -1,10 +1,10 @@
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; // 💡 개발 도구 임포트
-import { queryClient } from '@/lib/query-client';
-import { ThemeProvider } from '@/lib/theme-provider';
+import { queryClient } from '@/api/query-client';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(

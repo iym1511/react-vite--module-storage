@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { checkAuth } from '@/auth/checkAuth';
+import { checkAuth } from '@/features/auth/utils/checkAuth';
 import { router } from '@/routes/router';
-import './App.css';
 
 function App() {
   useEffect(() => {

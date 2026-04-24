@@ -1,45 +1,34 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '@/store/useAuthStore';
-import { authApi } from '@/lib/ky';
+import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { useMutation } from '@tanstack/react-query';
+import { authService } from '@/features/auth/api/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@naver.com'); // 테스트용 기본값
   const [password, setPassword] = useState('admin');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const loginResponse = await authApi.post('api/auth/login', {
-        json: { email, password },
-      }).json<{ message: string; accessToken: string; user: User }>();
-
-      if (loginResponse.user && loginResponse.accessToken) {
-        login(loginResponse.user, loginResponse.accessToken); 
-        navigate('/', { replace: true }); 
+  const loginMutation = useMutation({
+    mutationFn: () => authService.login({ email, password }),
+    onSuccess: (data) => {
+      if (data.user && data.accessToken) {
+        login(data.user, data.accessToken);
+        navigate('/', { replace: true });
       }
-    } catch (err: any) {
-      console.error('로그인 처리 중 에러 발생:', err);
-      setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.');
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate();
   };
+
+  const isLoading = loginMutation.isPending;
+  const isError = loginMutation.isError;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground">
@@ -93,9 +82,9 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {error && (
+          {isError && (
             <div className="rounded-lg bg-destructive/15 p-3 text-sm text-destructive">
-              {error}
+              로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.
             </div>
           )}
 
