@@ -17,12 +17,12 @@ export default function MainPage() {
             // 성공하든 실패하든 클라이언트 로그아웃은 진행
             logout()
             navigate('/login', { replace: true })
-        }
+        },
     })
 
     const handleLogout = () => {
         logoutMutation.mutate()
-    };
+    }
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark')
@@ -129,7 +129,9 @@ export default function MainPage() {
                         logoutMutation.isPending && 'opacity-50 cursor-not-allowed'
                     )}
                 >
-                    {logoutMutation.isPending ? 'Logging out...' : (
+                    {logoutMutation.isPending ? (
+                        'Logging out...'
+                    ) : (
                         <>
                             <LogOut className="h-4 w-4" />
                             로그아웃
