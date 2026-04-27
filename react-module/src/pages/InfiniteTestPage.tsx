@@ -14,7 +14,7 @@ export default function InfiniteTestPage() {
     const navigate = useNavigate()
 
     // 💡 현재 로그인한 사용자 정보 조회 (실무 패턴: me API 호출)
-    const { data: userData, isLoading: isUserLoading } = useQuery({
+    const { data: userData } = useQuery({
         queryKey: ['me'],
         queryFn: authService.me,
         // retry: false, // 인증 실패 시 반복 시도 금지

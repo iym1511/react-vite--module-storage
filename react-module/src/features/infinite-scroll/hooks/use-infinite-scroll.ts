@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { type IntersectionOptions, useInView } from 'react-intersection-observer';
+import { useEffect } from 'react'
+import { type IntersectionOptions, useInView } from 'react-intersection-observer'
 
 interface UseInfiniteScrollOptions extends IntersectionOptions {
-  hasNextPage?: boolean;
-  isFetchingNextPage?: boolean;
-  fetchNextPage: () => void;
+    hasNextPage?: boolean
+    isFetchingNextPage?: boolean
+    fetchNextPage: () => void
 }
 
 /**
@@ -13,26 +13,25 @@ interface UseInfiniteScrollOptions extends IntersectionOptions {
  * @param isFetchingNextPage 현재 로딩 중 여부
  * @param fetchNextPage 다음 페이지를 가져오는 함수
  */
-export function useInfiniteScroll({ 
-  hasNextPage, 
-  isFetchingNextPage, 
-  fetchNextPage, 
-  ...options 
+export function useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    ...options
 }: UseInfiniteScrollOptions) {
-  
-  const { ref, inView } = useInView({
-    threshold: 0,
-    // 💡 더 이상 데이터가 없으면 관찰(Observation) 자체를 하지 않음
-    skip: !hasNextPage,
-    ...options,
-  });
+    const { ref, inView } = useInView({
+        threshold: 0.5,
+        // 💡 더 이상 데이터가 없으면 관찰(Observation) 자체를 하지 않음
+        skip: !hasNextPage,
+        ...options,
+    })
 
-  useEffect(() => {
-    // 💡 화면에 보이고 + 다음 데이터가 있고 + 현재 로딩 중이 아닐 때만 실행
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+    useEffect(() => {
+        // 💡 화면에 보이고 + 다음 데이터가 있고 + 현재 로딩 중이 아닐 때만 실행
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage()
+        }
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  return { ref };
+    return { ref }
 }

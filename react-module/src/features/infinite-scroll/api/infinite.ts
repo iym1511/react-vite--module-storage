@@ -1,35 +1,34 @@
 import { api } from '@/api/ky'
-;
 
 export interface InfiniteItem {
-    id: number;
-    title: string;
-    description: string;
+    id: number
+    title: string
+    description: string
 }
 
 export interface FetchInfiniteResult {
-    data: InfiniteItem[];
-    nextCursor: number | undefined;
+    data: InfiniteItem[]
+    nextCursor: number | undefined
 }
 
 export const fetchInfiniteItemsFromApi = async ({
     pageParam = 0,
 }: {
-    pageParam: number;
+    pageParam: number
 }): Promise<FetchInfiniteResult> => {
     try {
         const result = await api
             .get('api/infinite/items', {
                 searchParams: {
                     cursor: pageParam,
-                    limit: 5,
+                    limit: 7,
                 },
             })
-            .json<FetchInfiniteResult>();
+            .json<FetchInfiniteResult>()
 
-        return result;
+        return result
     } catch (error) {
-        console.error('❌ Infinite API 요청 실패:', error);
-        throw error;
+        console.error('❌ Infinite API 요청 실패:', error)
+        throw error
     }
-};
+}

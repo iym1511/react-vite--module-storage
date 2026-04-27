@@ -118,7 +118,7 @@ export const refresh = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { email: decoded.email, name: decoded.name },
       process.env.JWT_SECRET!,
-      { expiresIn: "3s" },
+      { expiresIn: "1h" },
     );
 
     const newRefreshToken = jwt.sign(
