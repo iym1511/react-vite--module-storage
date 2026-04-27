@@ -1,5 +1,5 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 
 interface DecodedUser extends JwtPayload {
   email: string;
@@ -14,18 +14,22 @@ declare global {
   }
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     // 💡 이제 쿠키가 아닌 Authorization Header에서 Bearer 토큰을 가져옵니다.
-    let token = '';
-    if (req.headers.authorization?.startsWith('Bearer ')) {
-      token = req.headers.authorization.split(' ')[1];
+    let token = "";
+    if (req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
     }
 
     if (!token) {
       return res.status(401).json({
-        error: 'NO_TOKEN',
-        message: '인증 토큰이 없습니다.',
+        error: "NO_TOKEN",
+        message: "인증 토큰이 없습니다.",
       });
     }
 
@@ -35,13 +39,13 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
-        error: 'TOKEN_EXPIRED',
-        message: '토큰이 만료되었습니다.',
+        error: "TOKEN_EXPIRED",
+        message: "토큰이 만료되었습니다.",
       });
     }
     return res.status(403).json({
-      error: 'INVALID_TOKEN',
-      message: '유효하지 않은 토큰입니다.',
+      error: "INVALID_TOKEN",
+      message: "유효하지 않은 토큰입니다.",
     });
   }
 };

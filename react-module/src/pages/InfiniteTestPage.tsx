@@ -1,9 +1,10 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useInfiniteQuery } from '@tanstack/react-query'
-import { ArrowLeft, RefreshCcw, Loader2 } from 'lucide-react'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { ArrowLeft, RefreshCcw, Loader2, User as UserIcon } from 'lucide-react'
 import { fetchInfiniteItemsFromApi } from '@/features/infinite-scroll/api/infinite'
 import { useInfiniteScroll } from '@/features/infinite-scroll/hooks/use-infinite-scroll'
+import { authService } from '@/features/auth/api/auth'
 
 /**
  * 📝 InfiniteTestPage
@@ -12,10 +13,16 @@ import { useInfiniteScroll } from '@/features/infinite-scroll/hooks/use-infinite
 export default function InfiniteTestPage() {
     const navigate = useNavigate()
 
+    // 💡 현재 로그인한 사용자 정보 조회 (실무 패턴: me API 호출)
+    const { data: userData, isLoading: isUserLoading } = useQuery({
+        queryKey: ['me'],
+        queryFn: authService.me,
+        // retry: false, // 인증 실패 시 반복 시도 금지
+    })
+
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError, refetch } = useInfiniteQuery({
         queryKey: ['infinite-items'],
         initialPageParam: 0,
-        // gcTime: 0, // 캐싱이 필요없도 다른페이지갔다가 와서 처음부터 다시 스크롤 할거면 캐싱시간 0 으로 하기
         queryFn: ({ pageParam }: { pageParam: number }) => fetchInfiniteItemsFromApi({ pageParam }),
         getNextPageParam: ({ nextCursor }) => nextCursor ?? undefined,
     })
@@ -28,6 +35,19 @@ export default function InfiniteTestPage() {
 
     return (
         <div className="container mx-auto p-8 max-w-4xl bg-background text-foreground min-h-screen">
+            {/* 사용자 정보 표시 (상단 추가) */}
+            {userData?.user && (
+                <div className="mb-6 flex items-center gap-3 rounded-2xl bg-accent/50 p-4 border border-border shadow-sm">
+                    <div className="rounded-full bg-primary/10 p-2">
+                        <UserIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-foreground">{userData.user.name} 님, 안녕하세요!</p>
+                        <p className="text-xs text-muted-foreground">{userData.user.email}</p>
+                    </div>
+                </div>
+            )}
+
             {/* 헤더 영역 */}
             <div className="mb-8 flex items-center justify-between border-b border-border pb-4">
                 <div className="flex items-center gap-4">
@@ -94,7 +114,7 @@ export default function InfiniteTestPage() {
                             ))}
                         </div>
 
-                        {/* 하단 관찰 영역: 복잡한 로직을 훅에 위임하여 단순화됨 */}
+                        {/* 하단 관찰 영역 */}
                         <div ref={loadMoreRef} className="mt-8 flex justify-center py-8">
                             {isFetchingNextPage ? (
                                 <div className="flex flex-col items-center gap-3">

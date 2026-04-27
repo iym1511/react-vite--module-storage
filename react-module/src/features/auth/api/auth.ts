@@ -1,9 +1,10 @@
-import { authApi } from '@/api/ky';
+import { authApi, api } from '@/api/ky';
 
 interface User {
   id: string;
   email: string;
   name: string;
+  created_at?: string;
 }
 
 export interface LoginResponse {
@@ -41,5 +42,9 @@ export const authService = {
 
   logout: async () => {
     return await authApi.post('api/auth/logout');
+  },
+
+  me: async () => {
+    return await api.get('api/auth/me').json<{ user: User }>();
   },
 };

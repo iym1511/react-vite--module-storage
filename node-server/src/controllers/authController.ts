@@ -33,12 +33,10 @@ export const signUp = async (req: Request, res: Response) => {
     return res.status(201).json({ message: "회원가입 성공" });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({
-        error: "SERVER_ERROR",
-        message: "서버 내부 오류가 발생했습니다.",
-      });
+    return res.status(500).json({
+      error: "SERVER_ERROR",
+      message: "서버 내부 오류가 발생했습니다.",
+    });
   }
 };
 
@@ -56,12 +54,10 @@ export const login = async (req: Request, res: Response) => {
     const user = result.rows[0];
 
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-      return res
-        .status(401)
-        .json({
-          error: "INVALID_CREDENTIALS",
-          message: "이메일 또는 비밀번호가 틀립니다.",
-        });
+      return res.status(401).json({
+        error: "INVALID_CREDENTIALS",
+        message: "이메일 또는 비밀번호가 틀립니다.",
+      });
     }
 
     const tokenId = uuidv4();
@@ -122,7 +118,7 @@ export const refresh = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { email: decoded.email, name: decoded.name },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
+      { expiresIn: "3s" },
     );
 
     const newRefreshToken = jwt.sign(
@@ -154,12 +150,10 @@ export const refresh = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error("Refresh error:", err);
-    return res
-      .status(401)
-      .json({
-        error: "REFRESH_EXPIRED",
-        message: "세션이 만료되었습니다. 다시 로그인해주세요.",
-      });
+    return res.status(401).json({
+      error: "REFRESH_EXPIRED",
+      message: "세션이 만료되었습니다. 다시 로그인해주세요.",
+    });
   }
 };
 
@@ -183,5 +177,26 @@ export const logout = async (req: Request, res: Response) => {
  * 현재 사용자 정보 조회
  */
 export const me = async (req: Request, res: Response) => {
-  return res.status(200).json({ user: req.user });
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "UNAUTHORIZED" });
+    }
+
+    // 💡 토큰에 담긴 이메일로 DB에서 최신 정보 조회
+    const result = await pool.query(
+      "SELECT id, email, name, created_at FROM auth.users WHERE email = $1",
+      [req.user.email],
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: "USER_NOT_FOUND" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (err) {
+    console.error("Me API Error:", err);
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 };
