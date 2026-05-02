@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { Loading } from '@/components/ui/loading';
 
 interface RouteGuardProps {
   type: 'auth' | 'guest';
@@ -35,7 +36,7 @@ export default function RouteGuard({ type }: RouteGuardProps) {
 
   // ⏳ 초기화 중이거나 권한이 맞지 않을 때 찰나의 순간에 
   // 잘못된 UI가 노출되지 않도록 방어합니다.
-  if (isInitializing) return <div>로딩중입니다.</div>;
+  if (isInitializing) return <Loading fullScreen text="Loading workspace..." />;
 
   if (type === 'auth' && !isAuthenticated) return null;
   if (type === 'guest' && isAuthenticated) return null;

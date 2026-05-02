@@ -22,9 +22,13 @@ interface AuthState {
  * 로직을 단순화하고 초기화 상태 관리에 집중합니다.
  */
 export const useAuthStore = create<AuthState>((set) => ({
+    /** 초기 상태: 인증되지 않음 */
   isAuthenticated: false,
-  isInitializing: true, // 👈 앱 초기 진입 시 항상 true로 시작합니다.
+  /** 초기 상태: 앱 진입 시 항상 초기화 중(true)으로 시작 */
+  isInitializing: true,
+  /** 초기 상태: 토큰 없음 */
   accessToken: null,
+  /** 초기 상태: 사용자 정보 없음 */
   user: null,
   
   login: (user, accessToken) => 

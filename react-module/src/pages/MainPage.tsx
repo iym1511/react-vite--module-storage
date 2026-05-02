@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User as UserIcon, Layers, LayoutDashboard, Sun, Moon } from 'lucide-react'
+import { LogOut, Layers, LayoutDashboard, Sun, Moon, Sparkles, BookOpen, Rocket } from 'lucide-react'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { useTheme } from '@/components/providers/theme-provider'
 import { cn } from '@/utils/utils'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/features/auth/api/auth'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 export default function MainPage() {
     const { user, logout } = useAuthStore()
@@ -15,7 +16,6 @@ export default function MainPage() {
     const { mutate: logoutMutate, isPending: isLogoutPending } = useMutation({
         mutationFn: authService.logout,
         onSettled: () => {
-            // 성공하든 실패하든 클라이언트 로그아웃은 진행
             logout()
             navigate('/login', { replace: true })
         },
@@ -30,114 +30,130 @@ export default function MainPage() {
     }
 
     return (
-        <div className={cn('flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground')}>
-            <div
-                className={cn(
-                    'relative w-full max-w-md space-y-8 rounded-2xl bg-card p-8 shadow-xl border border-border'
-                )}
-            >
-                {/* 🌙 테마 토글 버튼 */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className="absolute right-6 top-6"
-                    aria-label="Toggle theme"
-                >
-                    {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-
-                <div className="text-center space-y-2">
-                    <div
-                        className={cn(
-                            'inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary'
-                        )}
-                    >
-                        <UserIcon className="h-8 w-8" />
+        <div className="min-h-screen bg-background text-foreground selection:bg-notion-primary/30 transition-colors duration-200">
+            {/* 🏗️ Sticky Top Navigation */}
+            <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-notion-hairline bg-background/80 px-6 backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-notion-ink text-background">
+                        <span className="text-lg font-bold">N</span>
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Home</h1>
-                    <p className="text-muted-foreground">환영합니다, {user?.name}님! 원하시는 메뉴를 선택하세요.</p>
+                    <span className="text-sm font-semibold tracking-tight">Notion Module</span>
                 </div>
+                
+                <div className="flex items-center gap-3">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={toggleTheme}
+                        className="rounded-md"
+                        aria-label="Toggle theme"
+                    >
+                        {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        disabled={isLogoutPending}
+                        className="text-sm font-medium"
+                    >
+                        {isLogoutPending ? '...' : <LogOut className="h-4 w-4" />}
+                    </Button>
+                </div>
+            </header>
 
-                <div className="grid gap-4">
-                    {/* 📝 인피니티 스크롤 테스트 페이지 이동 버튼 */}
-                    <button
+            <main className="mx-auto max-w-5xl px-6 py-12 lg:py-20">
+                {/* 🎯 Hero Section */}
+                <section className="mb-20 text-center">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-notion-hairline bg-notion-surface px-3 py-1 text-[13px] font-medium text-notion-steel">
+                        <Sparkles className="h-3 w-3 text-notion-primary" />
+                        <span>Welcome back to your workspace</span>
+                    </div>
+                    <h1 className="mb-6 text-5xl font-semibold leading-[1.1] tracking-[-1.5px] lg:text-7xl">
+                        Meet the next shift, <br />
+                        <span className="text-notion-primary">{user?.name}</span>.
+                    </h1>
+                    <p className="mx-auto max-w-2xl text-lg text-notion-slate lg:text-xl">
+                        Write, plan, and get organized in one place. Your personalized module workspace is ready for action.
+                    </p>
+                    <div className="mt-10 flex items-center justify-center gap-4">
+                        <Button variant="primary" size="lg" className="rounded-md font-semibold">
+                            Get started free
+                        </Button>
+                        <Button variant="secondary" size="lg" className="rounded-md font-semibold">
+                            Request a demo
+                        </Button>
+                    </div>
+                </section>
+
+                {/* 📦 Feature Cards Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* Card: Infinite Scroll */}
+                    <Card 
+                        className="group cursor-pointer overflow-hidden border-notion-hairline bg-card transition-all hover:shadow-lg"
                         onClick={() => navigate('/infinite-test')}
-                        className={cn(
-                            'flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4 transition-all group',
-                            'hover:bg-muted hover:border-primary/50'
-                        )}
                     >
-                        <div className="flex items-center gap-4 text-left">
-                            <div
-                                className={cn(
-                                    'rounded-lg bg-primary/20 p-2 text-primary transition-transform',
-                                    'group-hover:scale-110'
-                                )}
-                            >
-                                <Layers className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-foreground">Infinite Scroll Test</p>
-                                <p className="text-xs text-muted-foreground">useInfiniteQuery 기능을 테스트합니다.</p>
-                            </div>
+                        <div className="h-32 bg-notion-tint-sky p-6 dark:bg-notion-link-blue/20">
+                            <Layers className="h-10 w-10 text-notion-link-blue group-hover:scale-110 transition-transform" />
                         </div>
-                    </button>
-
-                    {/* 대시보드 상세 이동 버튼 */}
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className={cn(
-                            'flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4 transition-all group',
-                            'hover:bg-muted hover:border-primary/50'
-                        )}
-                    >
-                        <div className="flex items-center gap-4 text-left">
-                            <div
-                                className={cn(
-                                    'rounded-lg bg-secondary/20 p-2 text-secondary transition-transform',
-                                    'group-hover:scale-110'
-                                )}
-                            >
-                                <LayoutDashboard className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-foreground">Dashboard Detail</p>
-                                <p className="text-xs text-muted-foreground">보호된 시스템 정보를 상세히 확인합니다.</p>
-                            </div>
-                        </div>
-                    </button>
-
-                    {/* 유저 정보 요약 */}
-                    <div className="rounded-xl bg-muted/20 p-4 border border-border">
-                        <div className="space-y-1">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                사용자 계정
+                        <div className="p-6">
+                            <h3 className="mb-2 text-xl font-semibold">Infinite Scroll</h3>
+                            <p className="text-sm text-notion-slate">
+                                Test the useInfiniteQuery capabilities with seamless list loading.
                             </p>
-                            <p className="font-medium text-foreground">{user?.email}</p>
                         </div>
-                    </div>
+                    </Card>
+
+                    {/* Card: Dashboard */}
+                    <Card 
+                        className="group cursor-pointer overflow-hidden border-notion-hairline bg-card transition-all hover:shadow-lg"
+                        onClick={() => navigate('/dashboard')}
+                    >
+                        <div className="h-32 bg-notion-tint-rose p-6 dark:bg-notion-primary/20">
+                            <LayoutDashboard className="h-10 w-10 text-notion-primary group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="p-6">
+                            <h3 className="mb-2 text-xl font-semibold">Dashboard</h3>
+                            <p className="text-sm text-notion-slate">
+                                Access your protected system metrics and management tools.
+                            </p>
+                        </div>
+                    </Card>
+
+                    {/* Card: Placeholder / Community */}
+                    <Card className="group border-notion-hairline bg-card transition-all hover:shadow-lg">
+                        <div className="h-32 bg-notion-tint-peach p-6 dark:bg-orange-500/20">
+                            <BookOpen className="h-10 w-10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="p-6">
+                            <h3 className="mb-2 text-xl font-semibold">Resources</h3>
+                            <p className="text-sm text-notion-slate">
+                                Explore documentation and community templates for your project.
+                            </p>
+                        </div>
+                    </Card>
                 </div>
 
-                {/* 로그아웃 버튼 */}
-                <Button
-                    onClick={handleLogout}
-                    disabled={isLogoutPending}
-                    variant="destructive"
-                    className="w-full"
-                >
-                    {isLogoutPending ? (
-                        'Logging out...'
-                    ) : (
-                        <>
-                            <LogOut className="h-4 w-4 mr-2" />
-                            로그아웃
-                        </>
-                    )}
-                </Button>
-            </div>
+                {/* 📊 Bottom Section: User Info */}
+                <section className="mt-20 flex flex-col items-center justify-between gap-8 rounded-xl border border-notion-hairline bg-notion-surface p-8 md:flex-row">
+                    <div className="flex items-center gap-6">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-notion-primary/10 text-notion-primary">
+                            <Rocket className="h-8 w-8" />
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-semibold">Currently logged in as</h4>
+                            <p className="text-notion-slate">{user?.email}</p>
+                        </div>
+                    </div>
+                    <Button variant="secondary" className="w-full md:w-auto">
+                        Upgrade your plan
+                    </Button>
+                </section>
+            </main>
+
+            {/* 📝 Footer */}
+            <footer className="border-t border-notion-hairline py-12 text-center text-sm text-notion-steel">
+                <p>© 2026 Notion Module SPA. All rights reserved.</p>
+            </footer>
         </div>
     )
 }
-    
-
