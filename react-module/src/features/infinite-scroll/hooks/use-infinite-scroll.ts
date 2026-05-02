@@ -20,7 +20,7 @@ export function useInfiniteScroll({
     ...options
 }: UseInfiniteScrollOptions) {
     const { ref, inView } = useInView({
-        threshold: 0.5,
+        threshold: 0.5, // 50% 보이는 순간 다음 페이지 fetch
         // 💡 더 이상 데이터가 없으면 관찰(Observation) 자체를 하지 않음
         skip: !hasNextPage,
         ...options,

@@ -1,4 +1,5 @@
 import { api } from '@/api/ky'
+import { INFINITE_ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export interface InfiniteItem {
     id: number
@@ -28,7 +29,7 @@ export const fetchInfiniteItemsFromApi = async ({
 
         return result
     } catch (error) {
-        console.error('❌ Infinite API 요청 실패:', error)
+        console.error(`❌ ${INFINITE_ERROR_MESSAGES.FETCH_FAILED}`, error)
         throw error
     }
 }

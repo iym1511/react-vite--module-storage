@@ -5,13 +5,14 @@ import { useTheme } from '@/components/providers/theme-provider'
 import { cn } from '@/utils/utils'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/features/auth/api/auth'
+import { Button } from '@/components/ui/button'
 
 export default function MainPage() {
     const { user, logout } = useAuthStore()
     const { theme, setTheme } = useTheme()
     const navigate = useNavigate()
 
-    const logoutMutation = useMutation({
+    const { mutate: logoutMutate, isPending: isLogoutPending } = useMutation({
         mutationFn: authService.logout,
         onSettled: () => {
             // 성공하든 실패하든 클라이언트 로그아웃은 진행
@@ -21,7 +22,7 @@ export default function MainPage() {
     })
 
     const handleLogout = () => {
-        logoutMutation.mutate()
+        logoutMutate()
     }
 
     const toggleTheme = () => {
@@ -36,16 +37,15 @@ export default function MainPage() {
                 )}
             >
                 {/* 🌙 테마 토글 버튼 */}
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={toggleTheme}
-                    className={cn(
-                        'absolute right-6 top-6 rounded-full p-2 text-muted-foreground transition-colors',
-                        'hover:bg-muted hover:text-foreground'
-                    )}
+                    className="absolute right-6 top-6"
                     aria-label="Toggle theme"
                 >
                     {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </button>
+                </Button>
 
                 <div className="text-center space-y-2">
                     <div
@@ -120,25 +120,24 @@ export default function MainPage() {
                 </div>
 
                 {/* 로그아웃 버튼 */}
-                <button
+                <Button
                     onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                    className={cn(
-                        'flex w-full items-center justify-center gap-2 rounded-xl bg-destructive px-4 py-3 text-sm font-semibold text-destructive-foreground transition-all shadow-lg shadow-destructive/20',
-                        'hover:bg-destructive/90',
-                        logoutMutation.isPending && 'opacity-50 cursor-not-allowed'
-                    )}
+                    disabled={isLogoutPending}
+                    variant="destructive"
+                    className="w-full"
                 >
-                    {logoutMutation.isPending ? (
+                    {isLogoutPending ? (
                         'Logging out...'
                     ) : (
                         <>
-                            <LogOut className="h-4 w-4" />
+                            <LogOut className="h-4 w-4 mr-2" />
                             로그아웃
                         </>
                     )}
-                </button>
+                </Button>
             </div>
         </div>
     )
 }
+    
+
