@@ -245,6 +245,36 @@ return (
 
 ---
 
+## 🎨 스타일링 및 테마 시스템 (Styling & Theme System)
+
+### 1. 중앙 집중식 테마 관리 (index.css)
+- 모든 브랜드 색상과 시맨틱 색상은 `src/index.css`의 `:root`와 `.dark` 섹션에서 CSS 변수로 관리합니다.
+- 하드코딩된 색상값 대신 이 변수들을 참조하여 다크 모드와 테마 변경에 유연하게 대응합니다.
+
+### 2. Tailwind CSS 4 테마 매핑
+- `@theme` 블록에서 CSS 변수를 Tailwind 유틸리티(`notion-primary`, `notion-orange`, `destructive` 등)로 매핑하여 사용합니다.
+
+```css
+/* src/index.css */
+:root {
+  --notion-primary: #5645d4;
+  --destructive: #e03131;
+  /* ... */
+}
+
+@theme {
+  --color-notion-primary: var(--notion-primary);
+  --color-destructive: var(--destructive);
+}
+```
+
+### 3. 컴포넌트 내 사용 원칙
+- **하드코딩 금지:** 컴포넌트 내부에서 `#ffffff`나 `bg-red-500`과 같은 직접적인 색상 지정을 지양합니다.
+- **테마 유틸리티 사용:** 반드시 `bg-background`, `text-foreground`, `text-notion-primary`, `bg-destructive` 등 테마에 정의된 유틸리티를 사용합니다.
+- **상수화된 색상:** 특정 도메인에서 반복되는 색상은 CSS 변수화 후 테마에 등록하여 사용합니다.
+
+---
+
 ## 🎨 UI 컴포넌트 패턴 (Custom Shadcn)
 
 ### 1. 원칙

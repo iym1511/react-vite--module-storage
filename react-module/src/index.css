@@ -1,78 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  /* Fonts */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-
-  /* Notion Palette Base (Theme-Aware Variables) */
-  --color-notion-primary: var(--notion-primary);
-  --color-notion-primary-pressed: var(--notion-primary-pressed);
-  --color-notion-primary-deep: var(--notion-primary-deep);
-  --color-notion-on-primary: var(--notion-on-primary);
-  
-  --color-notion-navy: #0a1530;
-  --color-notion-navy-deep: #070f24;
-  
-  --color-notion-link-blue: #0075de;
-  --color-notion-link-blue-pressed: #005bab;
-  
-  --color-notion-ink-deep: var(--notion-ink-deep);
-  --color-notion-ink: var(--notion-ink);
-  --color-notion-charcoal: var(--notion-charcoal);
-  --color-notion-slate: var(--notion-slate);
-  --color-notion-steel: var(--notion-steel);
-  --color-notion-stone: var(--notion-stone);
-  --color-notion-muted: var(--notion-muted);
-  
-  --color-notion-canvas: var(--notion-canvas);
-  --color-notion-surface: var(--notion-surface);
-  --color-notion-surface-soft: var(--notion-surface-soft);
-  --color-notion-hairline: var(--notion-hairline);
-  --color-notion-hairline-strong: var(--notion-hairline-strong);
-
-  /* Card Tints (Static in light, might need dark variants if used) */
-  --color-notion-tint-peach: #ffe8d4;
-  --color-notion-tint-rose: #fde0ec;
-  --color-notion-tint-mint: #d9f3e1;
-  --color-notion-tint-lavender: #e6e0f5;
-  --color-notion-tint-sky: #dcecfa;
-  --color-notion-tint-yellow: #fef7d6;
-  --color-notion-tint-yellow-bold: #f9e79f;
-
-  /* Border Radius */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-xxl: 20px;
-
-  /* Functional Mappings (Theme-Aware) */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--notion-primary);
-  --color-on-primary: var(--notion-on-primary);
-  --color-card: var(--notion-canvas);
-  --color-card-foreground: var(--foreground);
-  --color-border: var(--notion-hairline);
-  --color-input: var(--notion-hairline-strong);
-  --color-ring: var(--notion-primary);
-
-  /* Animations */
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
-  }
-  @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
-  }
-}
-
-@layer base {
   :root {
     --background: #ffffff;
     --foreground: #1a1a1a;
@@ -95,6 +22,27 @@
     --notion-steel: #787671;
     --notion-stone: #a4a097;
     --notion-muted: #bbb8b1;
+
+    --notion-link-blue: #0075de;
+    --notion-link-blue-pressed: #005bab;
+    --notion-orange: #dd5b00;
+    --notion-orange-deep: #793400;
+
+    --notion-navy: #0a1530;
+    --notion-navy-deep: #070f24;
+
+    --notion-tint-peach: #ffe8d4;
+    --notion-tint-rose: #fde0ec;
+    --notion-tint-mint: #d9f3e1;
+    --notion-tint-lavender: #e6e0f5;
+    --notion-tint-sky: #dcecfa;
+    --notion-tint-yellow: #fef7d6;
+    --notion-tint-yellow-bold: #f9e79f;
+
+    --destructive: #e03131;
+    --destructive-foreground: #ffffff;
+    --success: #1aae39;
+    --warning: #dd5b00;
 
     --radius: 8px;
   }
@@ -121,14 +69,115 @@
     --notion-steel: #a4a097;
     --notion-stone: #8a8a8a;
     --notion-muted: #666666;
+
+    --notion-link-blue: #3291ff;
+    --notion-link-blue-pressed: #6bb1ff;
+    --notion-orange: #ff8b3e;
+
+    --notion-navy: #070f24;
+    --notion-navy-deep: #000000;
+
+    --notion-tint-peach: #3a2a10;
+    --notion-tint-rose: #3a1c31;
+    --notion-tint-mint: #103a1a;
+    --notion-tint-lavender: #211a3a;
+    --notion-tint-sky: #10213a;
+    --notion-tint-yellow: #3a3a10;
+    --notion-tint-yellow-bold: #4a4a1a;
+
+    --destructive: #ff4d4d;
+    --destructive-foreground: #ffffff;
+    --success: #2ecc71;
+    --warning: #f1c40f;
+  }
+
+
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Notion Palette Base (Theme-Aware Variables) */
+  --color-notion-primary: var(--notion-primary);
+  --color-notion-primary-pressed: var(--notion-primary-pressed);
+  --color-notion-primary-deep: var(--notion-primary-deep);
+  --color-notion-on-primary: var(--notion-on-primary);
+  
+  --color-notion-navy: var(--notion-navy);
+  --color-notion-navy-deep: var(--notion-navy-deep);
+  
+  --color-notion-link-blue: var(--notion-link-blue);
+  --color-notion-link-blue-pressed: var(--notion-link-blue-pressed);
+  --color-notion-orange: var(--notion-orange);
+  --color-notion-orange-deep: var(--notion-orange-deep);
+  
+  --color-notion-ink-deep: var(--notion-ink-deep);
+  --color-notion-ink: var(--notion-ink);
+  --color-notion-charcoal: var(--notion-charcoal);
+  --color-notion-slate: var(--notion-slate);
+  --color-notion-steel: var(--notion-steel);
+  --color-notion-stone: var(--notion-stone);
+  --color-notion-muted: var(--notion-muted);
+  
+  --color-notion-canvas: var(--notion-canvas);
+  --color-notion-surface: var(--notion-surface);
+  --color-notion-surface-soft: var(--notion-surface-soft);
+  --color-notion-hairline: var(--notion-hairline);
+  --color-notion-hairline-strong: var(--notion-hairline-strong);
+
+  /* Card Tints (Theme-Aware) */
+  --color-notion-tint-peach: var(--notion-tint-peach);
+  --color-notion-tint-rose: var(--notion-tint-rose);
+  --color-notion-tint-mint: var(--notion-tint-mint);
+  --color-notion-tint-lavender: var(--notion-tint-lavender);
+  --color-notion-tint-sky: var(--notion-tint-sky);
+  --color-notion-tint-yellow: var(--notion-tint-yellow);
+  --color-notion-tint-yellow-bold: var(--notion-tint-yellow-bold);
+
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 20px;
+
+  /* Functional Mappings (Theme-Aware) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--notion-primary);
+  --color-on-primary: var(--notion-on-primary);
+  --color-card: var(--notion-canvas);
+  --color-card-foreground: var(--foreground);
+  --color-border: var(--notion-hairline);
+  --color-input: var(--notion-hairline-strong);
+  --color-ring: var(--notion-primary);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
   }
 }
 
+
 @layer base {
   * {
-    @apply border-border outline-none;
+    border-color: var(--color-border);
+    @apply outline-none;
   }
   body {
-    @apply bg-background text-foreground font-sans transition-colors duration-200;
+    color: var(--color-foreground);
+    @apply bg-background font-sans transition-colors duration-200;
   }
 }

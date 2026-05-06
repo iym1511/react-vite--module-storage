@@ -121,8 +121,8 @@ export default function MainPage() {
 
                     {/* Card: Placeholder / Community */}
                     <Card className="group border-notion-hairline bg-card transition-all hover:shadow-lg">
-                        <div className="h-32 bg-notion-tint-peach p-6 dark:bg-orange-500/20">
-                            <BookOpen className="h-10 w-10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                        <div className="h-32 bg-notion-tint-peach p-6 dark:bg-notion-orange/20">
+                            <BookOpen className="h-10 w-10 text-notion-orange group-hover:scale-110 transition-transform" />
                         </div>
                         <div className="p-6">
                             <h3 className="mb-2 text-xl font-semibold">Resources</h3>

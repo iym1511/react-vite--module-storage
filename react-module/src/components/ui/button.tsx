@@ -21,7 +21,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       link: "bg-transparent text-notion-link-blue hover:text-notion-link-blue-pressed p-0 h-auto font-medium",
       'on-dark': "bg-white text-notion-navy hover:bg-notion-muted",
       'secondary-on-dark': "bg-transparent text-white border border-white/40 hover:bg-white/10",
-      destructive: "bg-red-600 text-white hover:bg-red-700",
+      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/20",
     }
 
     const sizes = {
